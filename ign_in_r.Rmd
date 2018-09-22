@@ -77,32 +77,99 @@ ign %>%
   head(., n=10) %>%
   ggplot() +
   geom_bar(aes(x=reorder(platform, -mean_score), y=mean_score, fill = platform), stat="identity") +
+  geom_label(aes(x=reorder(platform, -mean_score), y=mean_score, label=round(mean_score, digits = 2))) +
   labs(title = "Top 10 Platforms by Mean Review Score", x="Platform", y="Mean Review Score") +
   theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1)) + 
   guides(fill = FALSE)
 ```
 
+Number of Games in Each Platform
 ```{r}
+ign %>%
+  group_by(platform) %>%
+  summarise(counts = n()) %>%
+  arrange(desc(counts)) %>%
+  head(., n=10) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(platform, -counts), y=counts, fill=platform), stat="identity") +
+  geom_label(aes(x=reorder(platform, -counts), y=counts, label = counts)) + 
+  labs(title = "Top 10 Platforms by Number of Games", x="Platform", y="Total Number of Games") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1)) + 
+  guides(fill = FALSE)
+```
 
+String split function
+```{r}
+# string split function to get the main game genre
+get_genre <- function(string) {
+  length <- sapply(strsplit(string, ","), length)
+  return(sapply(strsplit(string,","), function(x) x[1]))
+}
+get_genre("Compilation, Compilation")
 ```
 
 ```{r}
-
+# creating new column for main genre based on above created function
+ign$main_genre <- get_genre(ign$genre)
+unique(ign$main_genre)
 ```
 
 ```{r}
-
+# games that dont have a genre
+ign[is.na(ign$main_genre),]
 ```
 
 ```{r}
-
+# checking to see if NA are dropped
+ign <- ign[!is.na(ign$main_genre),]
+dim(ign)
 ```
 
 ```{r}
-
+# checking for any other missing values
+apply(ign, 2, function(x) any(is.na(x)))
 ```
 
 ```{r}
-
+ign %>%
+  group_by(main_genre) %>%
+  summarise(mean_score = mean(score)) %>%
+  arrange(desc(mean_score)) %>%
+  head(., n=10) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(main_genre, -mean_score), y=mean_score, fill = main_genre), stat="identity") +
+  labs(title = "Top 10 Main Genres by Mean Review Score", x="Main Genre", y="Mean Review Score") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1)) + 
+  guides(fill = FALSE)
 ```
+
+```{r}
+ign %>%
+  group_by(main_genre) %>%
+  summarise(mean_score = mean(score)) %>%
+  arrange(desc(mean_score)) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(main_genre, -mean_score), y=mean_score, fill = main_genre), stat="identity") +
+  labs(title = "All Main Genres by Mean Review Score", x="Main Genre", y="Mean Review Score") +
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) + 
+  guides(fill = FALSE)
+```
+
+```{r}
+ign[ign$main_genre == 'Hardware',]
+```
+
+```{r}
+ign %>%
+  group_by(main_genre) %>%
+  summarise(mean_score = n()) %>%
+  arrange(desc(mean_score)) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(main_genre, -mean_score), y=mean_score, fill = main_genre), stat="identity") +
+  labs(title = "All Main Genres by Mean Review Score", x="Main Genre", y="Mean Review Score") +
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) + 
+  guides(fill = FALSE)
+```
+
+Group by Title
 
