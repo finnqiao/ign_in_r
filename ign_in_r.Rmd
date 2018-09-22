@@ -1,0 +1,85 @@
+---
+title: "Analysis of IGN dataset in R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("/Users/finn/medium_articles/ign_in_r")
+getwd()
+```
+
+```{r}
+# install tidyverse and readr for data manipulation
+install.packages("tidyverse", dependencies=TRUE, repos="http://cran.wustl.edu/")
+```
+
+
+```{r}
+# install.packages("readr", dependencies=TRUE)
+```
+
+```{r}
+# install.packages("here", dependencies = TRUE)
+```
+
+
+```{r}
+# load packages
+library(tidyverse)
+library(readr)
+```
+
+```{r}
+# read csv of ign data into a dataframe
+ign <- read.csv(here::here('ign.csv'), stringsAsFactors = FALSE)
+head(ign)
+```
+
+```{r}
+# a summary of the variables in the dataframe
+str(ign)
+summary(ign)
+```
+
+```{r}
+names(ign)
+```
+
+```{r}
+ign %>%
+  group_by(platform) %>%
+  summarise(mean_score = mean(score)) %>%
+  arrange(desc(mean_score)) %>%
+  head(., n=10) %>%
+  ggplot() +
+  geom_col(aes(x=platform, y=mean_score))
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
