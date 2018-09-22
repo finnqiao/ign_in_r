@@ -49,6 +49,26 @@ summary(ign)
 names(ign)
 ```
 
+Top-rated titles
+```{r}
+ign[order(ign$score, decreasing = TRUE),]
+```
+
+Top-rated genre
+```{r}
+ign %>%
+  group_by(genre) %>%
+  summarise(mean_score = mean(score)) %>%
+  arrange(desc(mean_score)) %>%
+  head(., n=10) %>%
+  ggplot() +
+  geom_bar(aes(x=reorder(genre, -mean_score), y=mean_score, fill=genre), stat="identity") +
+  guides(fill = FALSE) +
+  labs(title = "Top 10 Genres by Mean Review Score", x="Genre", y="Mean Review Score") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
+```
+
+Top-rated platforms
 ```{r}
 ign %>%
   group_by(platform) %>%
@@ -56,7 +76,10 @@ ign %>%
   arrange(desc(mean_score)) %>%
   head(., n=10) %>%
   ggplot() +
-  geom_col(aes(x=platform, y=mean_score))
+  geom_bar(aes(x=reorder(platform, -mean_score), y=mean_score, fill = platform), stat="identity") +
+  labs(title = "Top 10 Platforms by Mean Review Score", x="Platform", y="Mean Review Score") +
+  theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1)) + 
+  guides(fill = FALSE)
 ```
 
 ```{r}
