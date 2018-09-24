@@ -51,7 +51,7 @@ names(ign)
 
 Top-rated titles
 ```{r}
-ign[order(ign$score, decreasing = TRUE),]
+head(ign[order(ign$score, decreasing = TRUE),])
 ```
 
 Top-rated genre
@@ -120,7 +120,7 @@ unique(ign$main_genre)
 Dropping NA values
 ```{r}
 # games that dont have a genre
-ign[is.na(ign$main_genre),]
+head(ign[is.na(ign$main_genre),])
 ```
 
 ```{r}
@@ -291,34 +291,38 @@ grouped_title_ign %>%
   guides(fill=FALSE)
 ```
 
-Slope Chart Across Platforms
 ```{r}
-
-```
-
-```{r}
-install.packages('forecast', dependencies = TRUE, repos="http://cran.wustl.edu/")
-install.packages('TTR', dependencies = TRUE)
+# install.packages('forecast', dependencies = TRUE, repos="http://cran.wustl.edu/")
+# install.packages('TTR', dependencies = TRUE)
 ```
 
 ```{r}
 library(forecast)
-install.packages('directlabels')
+# install.packages('directlabels')
 library(directlabels)
 ```
-
 Seasonal Plot Across Platforms
 ```{r}
+unique(ign$release_year)
+```
+  
+```{r}
 ign %>%
-  subset(., release_year>1990 & release_year<2000) %>%
+  subset(., release_year>1990 & release_year<=2010) %>%
   group_by(platform, release_year) %>%
   summarise(total_games = n()) %>%
   subset(., total_games>10) %>%
   ggplot() +
   geom_line(aes(x=release_year, y=total_games, group=platform, col=platform))+
   geom_point(aes(x=release_year, y=total_games, group=platform, col=platform)) +
-  # geom_text(aes(x=release_year, y=total_games, label=platform),check_overlap=TRUE) +
-  geom_dl(aes(x=release_year, y=total_games, label = platform), method = list(dl.combine("last.points"), cex = 0.8)) +
-  guides(col=FALSE)
+  geom_dl(aes(x=release_year, y=total_games, label = platform), method=list("first.bumpup", cex=0.5)) +
+  guides(col=FALSE) +
+  scale_x_continuous(breaks=c(1996:2010), 
+                   labels=factor(1996:2010),
+                   limits=c(1995,2010)) +
+  labs(title="Number of IGN Listed Games Across Platforms 1996-2010", x='Release Year', y='IGN Listed Games in Year')
   
 ```
+
+
+
