@@ -210,9 +210,51 @@ grouped_title_ign %>%
 
 Top genres by game count
 ```{r}
-
+grouped_title_ign %>%
+  group_by(main_genre) %>%
+  summarise(total_games = n()) %>%
+  ggplot() +
+  geom_bar(stat="identity", aes(x=reorder(main_genre, -total_games), y=total_games, fill = main_genre)) +
+  guides(fill = FALSE) +
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) + 
+  labs(title = "All Main Genres by Total Game Count", x="Main Genre", y="Total Game Count")
 ```
 
+Lollipop chart
+```{r}
+grouped_title_ign %>%
+  group_by(main_genre) %>%
+  summarise(total_games = n()) %>%
+  ggplot() +
+  geom_point(aes(x=reorder(main_genre, -total_games), y=total_games), size =3) + 
+  geom_segment(aes(x=reorder(main_genre, -total_games),
+                   xend=reorder(main_genre, -total_games),
+                   y=0,
+                   yend=total_games)) + 
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) +
+  labs(title="Lollipop Chart of All Main Genres By Total Game Count",
+       x="Main Genre",
+       y="Total Game Count")
+```
+
+
+Pie chart
+```{r}
+grouped_title_ign %>%
+  group_by(main_genre) %>%
+  summarise(total_games = n()) %>%
+  arrange(desc(total_games)) %>%
+  head(n=12) %>%
+  ggplot() + 
+  geom_bar(aes(x='', y=total_games,fill=factor(main_genre)), width=1, stat="identity") +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  coord_polar(theta="y", start=0) +
+  labs(fill="Main Genre", 
+       x=NULL,
+       y=NULL,
+       title="Distribution of Games Across Top Genres")
+```
 
 ```{r}
 grouped_title_ign %>%
