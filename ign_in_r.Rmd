@@ -297,15 +297,28 @@ Slope Chart Across Platforms
 ```
 
 ```{r}
-install.packages('forecast')
-library(forecast)
+install.packages('forecast', dependencies = TRUE, repos="http://cran.wustl.edu/")
+install.packages('TTR', dependencies = TRUE)
 ```
 
 ```{r}
-dd
+library(forecast)
+install.packages('directlabels')
+library(directlabels)
 ```
 
 Seasonal Plot Across Platforms
 ```{r}
-
+ign %>%
+  subset(., release_year>1990 & release_year<2000) %>%
+  group_by(platform, release_year) %>%
+  summarise(total_games = n()) %>%
+  subset(., total_games>10) %>%
+  ggplot() +
+  geom_line(aes(x=release_year, y=total_games, group=platform, col=platform))+
+  geom_point(aes(x=release_year, y=total_games, group=platform, col=platform)) +
+  # geom_text(aes(x=release_year, y=total_games, label=platform),check_overlap=TRUE) +
+  geom_dl(aes(x=release_year, y=total_games, label = platform), method = list(dl.combine("last.points"), cex = 0.8)) +
+  guides(col=FALSE)
+  
 ```
