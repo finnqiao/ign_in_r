@@ -280,20 +280,32 @@ Top rated titles
 subset(grouped_title_ign, score==10)
 ```
 
-Charts to try:
-1. Lollipop chart for mean review score for all genres
-2. Slope chart for start and end number of games per platform
-3. Box plot of mean review score across platforms
-4. Waffle chart of number of games across platforms
-5. Seasonal plot of annual game number releases across platforms
+Box Plot of Mean Review
+```{r}
+grouped_title_ign %>%
+  group_by(main_genre) %>%
+  ggplot() +
+  geom_boxplot(aes(x=main_genre, y=score, fill="coral2")) +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+  labs(title = "Boxplot of Mean Review Scores Across Genres", x="Main Genre", y="Review Score") +
+  guides(fill=FALSE)
+```
 
-Development of platforms over time by cumulative growth in titles
+Slope Chart Across Platforms
 ```{r}
 
 ```
 
+```{r}
+install.packages('forecast')
+library(forecast)
+```
 
+```{r}
+dd
+```
+
+Seasonal Plot Across Platforms
 ```{r}
 
 ```
-
