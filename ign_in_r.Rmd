@@ -12,6 +12,8 @@ setwd("/Users/finn/medium_articles/ign_in_r")
 getwd()
 ```
 
+Given my recent foray into R and ggplot, it seemed appropriate to take a break from the usual Python jupyter notebooks. I have chosen IGN dataset from kaggle here https://www.kaggle.com/egrinstein/20-years-of-games to do a quick data manipulation and visualization of the data.
+
 ```{r}
 # install tidyverse and readr for data manipulation
 install.packages("tidyverse", dependencies=TRUE, repos="http://cran.wustl.edu/")
@@ -33,11 +35,14 @@ library(tidyverse)
 library(readr)
 ```
 
+After loading the tidyverse package, which contains useful packages like ggplot2 and dplyr, we begin by reading in the csv not as factors.
 ```{r}
 # read csv of ign data into a dataframe
 ign <- read.csv(here::here('ign.csv'), stringsAsFactors = FALSE)
 head(ign)
 ```
+
+A quick look at the dataframe reveal some interesting variables. In particular, the title, platform, score, genre, and release_year variables.
 
 ```{r}
 # a summary of the variables in the dataframe
@@ -49,11 +54,18 @@ summary(ign)
 names(ign)
 ```
 
+A look at the top rated titles don't seem to be too interesting as there are multiple title with scores of 9 and 10. Let's instead look at the average review scores based on particular groupings.
+
 Top-rated titles
 ```{r}
 head(ign[order(ign$score, decreasing = TRUE),])
 ```
 
+```{r}
+length(unique(ign$genre))
+```
+
+As there are 112 unique genres, lets just take the top 10 genres.
 Top-rated genre
 ```{r}
 ign %>%
@@ -68,6 +80,11 @@ ign %>%
   labs(title = "Top 10 Genres by Mean Review Score", x="Genre", y="Mean Review Score") +
   theme(axis.text.x = element_text(size = 10, angle = 45, hjust = 1))
 ```
+
+```{r}
+length(unique(ign$platform))
+```
+Similarly, we take the top 10 out of 59 platforms examine the average review score.
 
 Top-rated platforms
 ```{r}
@@ -100,6 +117,8 @@ ign %>%
   guides(fill = FALSE)
 ```
 
+Are all 122 genres necessary? The division here might be too granular. There are quite a few genres like 'Adventure, Platformer' and 'Adventure, Episodic' that have the same primary genre of 'Adventure'. I thus wrote a function to get the primary genre of each game by taking the first word of the genre variable.
+
 String split function
 ```{r}
 # string split function to get the main game genre
@@ -110,12 +129,16 @@ get_genre <- function(string) {
 get_genre("Compilation, Compilation")
 ```
 
+The new main_genre variable now includes a much more manageable 31 unique genres. There seems to be one named NA though. Lets take a look.
+
 Consolidating genres
 ```{r}
 # creating new column for main genre based on above created function
 ign$main_genre <- get_genre(ign$genre)
 unique(ign$main_genre)
 ```
+
+There are 36 rows with missing genre values. As this is a really small sample of the 18,000+ observations and it would take unecessary effort to label them manually, we drop these observations with NA genre values.
 
 Dropping NA values
 ```{r}
@@ -129,10 +152,14 @@ ign <- ign[!is.na(ign$main_genre),]
 dim(ign)
 ```
 
+Double-checking here to make sure there aren't any NA values in the other values.
+
 ```{r}
 # checking for any other missing values
 apply(ign, 2, function(x) any(is.na(x)))
 ```
+
+With the newly reduced genres, lets look at the mean review score distribution again, this time with all the genres. We see that compilation games have dropped quite far back while hardware games remain far and away the highest rated games. What are hardware games though? 
 
 ```{r}
 ign %>%
@@ -159,9 +186,13 @@ ign %>%
   guides(fill = FALSE)
 ```
 
+Apparently they refer to VR hardware and are only represented by two entries. Given the nascent VR industry, this paucity of observations seems to be appropriate.
+
 ```{r}
 ign[ign$main_genre == 'Hardware',]
 ```
+
+Given that the hardware category only has two observations, which are the genres with the most games?
 
 ```{r}
 ign %>%
@@ -173,6 +204,22 @@ ign %>%
   labs(title = "All Main Genres by Total Number of Games", x="Main Genre", y="Total Number of Games") +
   theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) + 
   guides(fill = FALSE)
+```
+
+```{r}
+ign %>%
+  group_by(main_genre) %>%
+  summarise(total_games = n()) %>%
+  ggplot() +
+  geom_point(aes(x=reorder(main_genre, -total_games), y=total_games), size =3) + 
+  geom_segment(aes(x=reorder(main_genre, -total_games),
+                   xend=reorder(main_genre, -total_games),
+                   y=0,
+                   yend=total_games)) + 
+  theme(axis.text.x = element_text(size = 10, angle = 60, hjust = 1)) +
+  labs(title="Lollipop Chart of All Genres By Total Game Count",
+       x="Genre",
+       y="Total Game Count")
 ```
 
 Group by Title
